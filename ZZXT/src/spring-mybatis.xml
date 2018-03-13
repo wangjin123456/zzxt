@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+		 http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.2.xsd">
+		 
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="com.zzxt.*" />
+	<!-- 引入单个配置文件 -->
+	<!-- <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+		<property name="location" value="classpath:jdbc.properties" /> </bean> -->
+	<!-- 将多个配置文件读取到容器中，交给Spring管理 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<!-- <value>classpath:jdbc.properties</value> -->
+				<!-- <value>classpath:redis.properties</value> -->
+				
+				<value>resource-provider/src/main/resources/application.properties</value>
+			</list>
+		</property>
+	</bean>
+
+
+	<!-- 配置数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClass}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="user" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+		
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}"></property>
+		<property name="minPoolSize" value="${jdbc.minPoolSize}"></property>
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}"></property>
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime}"></property>
+		<property name="checkoutTimeout" value="${jdbc.checkoutTimeout}"></property>
+		<property name="testConnectionOnCheckin" value="${jdbc.testConnectionOnCheckin}"></property>
+		<property name="testConnectionOnCheckout" value="${jdbc.testConnectionOnCheckout}"></property>
+		<property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}"></property>
+		
+		<property name="acquireIncrement" value="${jdbc.acquireIncrement}"></property>
+		<property name="maxStatements" value="${jdbc.maxStatements}"></property>
+		
+	</bean>
+
+
+	<!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+		<!-- 自动扫描mapping.xml文件 -->
+		
+		<property name="mapperLocations" value="classpath:com/zzxt/dao/mapper/*.xml"></property>
+	</bean>
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.zzxt.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>
+
+	<!-- (事务管理)transaction manager, use JtaTransactionManager for global tx-->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean> 
+	
+	
+	<!-- 数据库事务
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		p:dataSource-ref="dataSource" /> -->
+	
+		<!-- 事务控制 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="save*" rollback-for="Throwable" />
+			<tx:method name="add*" rollback-for="Throwable" />
+			<tx:method name="insert*" rollback-for="Throwable" />
+			<tx:method name="update*" rollback-for="Throwable" />
+			<tx:method name="del*" rollback-for="Throwable" />
+			<tx:method name="batch*" rollback-for="Throwable" />
+			<tx:method name="modify*" rollback-for="Throwable" />
+			<tx:method name="sign*" rollback-for="Throwable" />
+			<tx:method name="finish*" rollback-for="Throwable" />
+			<tx:method name="init*" rollback-for="Throwable" />
+			<tx:method name="getSeal*" rollback-for="Throwable" />
+			<!-- <tx:method name="*" propagation="REQUIRED" isolation="DEFAULT" read-only="true" /> -->
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- AOP增强 -->
+	<aop:config>
+		<aop:pointcut id="transmanagerexpression" expression="(execution(* com.zzxt.service.*.*.*(..))) || execution(* com.zzxt.servicehttp.*.*.*(..)))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="transmanagerexpression" />
+	</aop:config>
+
+<!--redis -->   
+	<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
+        <constructor-arg index="0" ref="jedisPoolConfig"/>
+        <constructor-arg index="1">
+            <list>
+                 <bean name="slaver" class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg index="0" value="${redis.slaver.host}"/>
+                    <constructor-arg index="1" value="${redis.slaver.port}" type="int"/>
+                    <property name="password" value="${redis.slaver.password}"/>
+                </bean>
+                 <!-- <bean name="master" class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg index="0" value="${redis.slaver.host}"/>
+                    <constructor-arg index="1" value="${redis.slaver.port}" type="int"/>
+                </bean> -->
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="30" />
+        <property name="maxIdle" value="10" />
+        <property name="numTestsPerEvictionRun" value="1024"/>
+        <property name="timeBetweenEvictionRunsMillis" value="30000" />
+        <property name="minEvictableIdleTimeMillis" value="-1" />
+        <property name="softMinEvictableIdleTimeMillis" value="10000" />
+        <property name="maxWaitMillis" value="1500"/>
+        <property name="testOnBorrow" value="true" />
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="jmxEnabled" value="true"/>
+        <property name="jmxNamePrefix" value="youyuan"/>
+        <property name="blockWhenExhausted" value="false"/>
+    </bean>
+
+</beans>
+
+
+

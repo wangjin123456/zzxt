@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.EContractDao">
+
+
+
+
+	<select id="search" resultType="com.zzxt.entity.EContractEntity">
+		 
+		 SELECT ec.id, ec.title, ec.fileName, ec.name, ec.contract, ec.createTime, ec.signTime, ec.destroyTime, ec.state, ec.fId, ec.comment, le.id, le.holder 
+		 from 
+		 econtract ec, legalperson_econtract le
+		<where>
+			<if test="lpId != null and lpId !='' and skey != null and skey != ''">
+			 and ec.id = le.ecId and le.lpId = #{lpId} and (ec.title LIKE CONCAT('%', '${skey}', '%') or ec.fileName LIKE CONCAT('%', '${skey}', '%')) order by ec.createTime desc limit ${start}, ${end}
+			</if>
+		</where>
+		
+		
+	</select>
+
+
+	<select id="searchState" resultType="com.zzxt.entity.EContractEntity">
+		 
+		 SELECT ec.id, ec.title, ec.fileName, ec.name, ec.contract, ec.createTime, ec.signTime, ec.destroyTime, ec.state, ec.fId, ec.comment, le.id, le.holder 
+		 from 
+		 econtract ec, legalperson_econtract le
+		<where>
+			<if test="lpId != null and lpId !=''">
+			 and ec.id = le.ecId and le.lpId = #{lpId} and ec.state = #{state} order by ec.createTime desc limit ${start}, ${end}
+			</if>
+		</where>
+		
+		
+	</select>
+
+
+	<select id="count" resultType="Integer">
+		 
+		 SELECT count(*)
+		 from 
+		 econtract ec, legalperson_econtract le
+		<where>
+			<if test="orgUuid != null and orgUuid !=''">
+			 and ec.id = le.ecId and le.lpId = #{orgUuid}
+			</if>
+		</where>
+	</select>
+
+<!-- 	<select id="eContractList" resultType="com.zzxt.entity.EContractEntity">
+		 
+		 SELECT ec.id, ec.title, ec.fileName, ec.name, ec.contract, ec.createTime, ec.signTime, ec.destroyTime, ec.state, ec.fId, ec.comment, le.id, le.holder 
+		 from 
+		 econtract ec, legalperson_econtract le
+		<where>
+			<if test="lpId !=null and lpId !=''">
+			 and ec.id = le.ecId and le.lpId = #{lpId}
+			</if>
+		</where>
+	</select> -->
+
+
+	<select id="eContractList" resultType="com.zzxt.entity.EContractEntity">
+		 
+		 SELECT ec.id, ec.title, ec.fileName, ec.name, ec.contract, ec.createTime, ec.signTime, ec.destroyTime, ec.state, ec.fId, ec.comment, le.id, le.holder 
+		 from 
+		 econtract ec, legalperson_econtract le 
+		<where>
+			<if test="lpId !=null and lpId !=''">
+			 and ec.id = le.ecId and le.lpId = #{lpId} order by ec.createTime desc limit ${start}, ${end}
+			</if>
+		</where>
+		
+	</select>
+
+
+
+	<select id="eContract" resultType="com.zzxt.entity.EContractEntity">
+		 
+		 SELECT ec.* from econtract ec
+		<where>
+			<if test="ecId !=null and ecId !=''">
+			 and ec.id = #{ecId}
+			</if>
+		</where>
+	</select>
+
+	
+	<insert id="add" parameterType="com.zzxt.entity.EContractEntity" useGeneratedKeys="true" keyProperty="id">
+		
+		<selectKey keyProperty="id" resultType="int">  
+            select LAST_INSERT_ID()
+        </selectKey>
+        
+		insert into econtract(title, fileName, name, contract, state, deadline, returnURL, comment)
+		values (#{title}, #{fileName}, #{name}, #{contract}, #{state}, #{deadline}, #{returnURL}, #{comment})
+	</insert>
+	
+
+	<delete id="del" parameterType="String">
+		DELETE FROM econtract
+		where id=#{id}
+	</delete>
+
+	<update id="edit" parameterType="com.zzxt.entity.EContractEntity">
+		UPDATE econtract SET
+		title=#{title}, fileName=#{fileName}, name=#{name}, contract=#{contract}, state=#{state}, fId=#{fId}, contractId=#{contractId}, returnURL=#{returnURL}, comment = #{comment}
+		where id=#{id}
+	</update>
+
+</mapper>

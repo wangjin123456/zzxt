@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.LicenseDao">
+ 	<resultMap type="com.zzxt.entity.LicenseEntity" id="license">
+		<id column="id" property="id" />
+		<result column="uscCode" property="uscCode" />
+		<result column="orgCode" property="orgCode" />
+		<result column="regNum" property="regNum" />
+
+		<result column="province" property="province" />
+		<result column="city" property="city" />
+		<result column="region" property="region" />
+		<result column="orgType" property="orgType" />
+		<result column="manageOrgUuid" property="manageOrgUuid" />
+
+		<result column="licStatus" property="licStatus" />
+		<result column="industry" property="industry" />
+		<result column="eDate" property="eDate" />
+		<result column="licType" property="licType" />
+		<result column="startDate" property="startDate" />
+		<result column="endDate" property="endDate" />
+		<result column="legalName" property="legalName" />
+		<result column="aDate" property="aDate" />
+		<result column="capital" property="capital" />
+		<result column="ra" property="ra" />
+		<result column="address" property="address" />
+		<result column="licScope" property="licScope" />
+		<result column="licPath" property="licPath" />
+		<result column="cName" property="cName" />
+		<result column="remark" property="remark" />
+		<result column="addTime" property="addTime" />
+		<result column="updateTime" property="updateTime" />
+		<result column="orgUuid" property="orgUuid" />
+	</resultMap>
+ 
+	<update id="edit" parameterType="com.zzxt.entity.LicenseEntity">
+		UPDATE license
+		set uscCode = #{uscCode,jdbcType=VARCHAR},
+		orgCode = #{orgCode,jdbcType=VARCHAR},
+		regNum = #{regNum,jdbcType=VARCHAR},
+		licStatus = #{licStatus,jdbcType=VARCHAR},
+		province = #{province,jdbcType=VARCHAR},
+		city = #{city,jdbcType=VARCHAR},
+		region = #{region,jdbcType=VARCHAR},
+		manageOrgUuid = #{manageOrgUuid,jdbcType=VARCHAR},
+		orgType = #{orgType,jdbcType=VARCHAR},
+		industry = #{industry,jdbcType=VARCHAR},
+		eDate = #{eDate,jdbcType=DATE},
+		licType = #{licType,jdbcType=VARCHAR},
+		startDate = #{startDate,jdbcType=DATE},
+		endDate = #{endDate,jdbcType=DATE},
+		legalName = #{legalName,jdbcType=VARCHAR},
+		aDate = #{aDate,jdbcType=DATE},
+		capital = #{capital,jdbcType=VARCHAR},
+		ra = #{ra,jdbcType=VARCHAR},
+		address = #{address,jdbcType=VARCHAR},
+		licScope = #{licScope,jdbcType=VARCHAR},
+		licPath = #{licPath,jdbcType=VARCHAR},
+		cName = #{cName,jdbcType=VARCHAR},
+		remark = #{remark,jdbcType=VARCHAR},
+		addTime = #{addTime,jdbcType=DATE},
+		updateTime = #{updateTime,jdbcType=DATE},
+		orgUuid = #{orgUuid,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<insert id="add" parameterType="com.zzxt.entity.LicenseEntity">
+		<selectKey keyProperty='id' resultType='int' order='AFTER'>
+			select LAST_INSERT_ID();
+		</selectKey>
+		INSERT INTO
+		license(uscCode,cName,licType,legalName,legalPerson_id,capital,province,city,region,orgType,manageOrgUuid,eDate,startDate,endDate,ra,aDate,licStatus,address,licScope,licPath,remark,industry,regNum,orgCode,addTime,updateTime,orgUuid)
+		values
+		(#{uscCode},#{cName},#{licType},#{legalName},#{legalPerson_id},#{capital},#{province},#{city},#{region},#{orgType},#{manageOrgUuid},#{eDate},#{startDate},#{endDate},#{ra},#{aDate},#{licStatus},#{address},#{licScope},#{licPath},#{remark},#{industry},#{regNum},#{orgCode},#{addTime},#{updateTime},#{orgUuid})
+	</insert>
+
+<!-- 	
+	<select id="licenseInfo" parameterType="java.lang.String"
+		resultType="com.zzxt.bean.LicenseLegalPersonBean">
+		
+		SELECT l.id, l.uscCode, l.orgCode, l.regNum, l.licStatus, l.industry, l.eDate, l.licType, l.startDate, l.endDate, l.aDate, l.capital, l.ra, l.address, l.licScope, l.licPath, l.cName, l.remark, l.addTime, l.updateTime, l.orgUuid, l.classPath, l.province, l.city, l.region, l.orgType, l.manageOrgUuid, l.legalPerson_id, l.legalName, 
+		lp.name, lp.identity, lp.identityType, lp.phone
+		FROM license l, legalperson lp, license_legalperson three
+		
+		<where>
+			<if test="orgUuid !=null and orgUuid !=''">
+				l.id = three.lid and lp.id = three.lpid and l.orgUuid = #{orgUuid} limit 1
+			</if>
+		</where>
+		
+	</select>
+ -->	
+	
+	
+	<select id="licenseInfo" parameterType="java.lang.String" resultType="com.zzxt.entity.LicenseEntity">
+		
+		SELECT l.*
+		FROM license l
+		<where>
+			<if test="orgUuid != null and orgUuid != ''">
+				and l.orgUuid = #{orgUuid} limit 1
+			</if>
+		</where>
+	</select>	
+	
+	
+	<select id="reminderInfo" parameterType="java.lang.String" resultType="com.zzxt.entity.LicenseEntity">
+		
+		SELECT l.reminder_oa, l.reminder_expire, reminder_days, reminder_content
+		FROM license l
+		<where>
+			<if test="orgUuid != null and orgUuid != ''">
+				and l.orgUuid = #{orgUuid} limit 1
+			</if>
+		</where>
+	</select>	
+	
+	
+	<update id="updateReminder" parameterType="com.zzxt.entity.LicenseEntity">
+		UPDATE license
+		set reminder_oa = #{reminder_oa, jdbcType=VARCHAR},
+		reminder_expire = #{reminder_expire, jdbcType=DATE},
+		reminder_days = #{reminder_days, jdbcType=INTEGER},
+		reminder_content = #{reminder_content, jdbcType=VARCHAR}
+		where id = #{id, jdbcType=INTEGER}
+	</update>
+ 	
+
+	<select id="getCount" resultType="Integer">
+		SELECT Count(1) FROM tb_license
+	</select>
+
+	<delete id="deleteLic" parameterType="Integer">
+		DELETE FROM tb_license
+		where License_id=#{id}
+	</delete>
+
+</mapper>

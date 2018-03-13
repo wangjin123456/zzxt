@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.ESignatureDao">
+	
+	
+	
+	
+	<select id="count" resultType="Integer">
+		 
+		 SELECT count(*)
+		 from 
+		 esignature es, legalperson_esignature le
+		<where>
+			<if test="orgUuid != null and orgUuid !=''">
+			 and es.id = le.esId and le.lpId = #{orgUuid}
+			</if>
+		</where>
+	</select>
+	
+	
+	
+	<select id="search" resultType="com.zzxt.entity.ESignatureEntity">
+		 
+		 SELECT es.id, es.title, es.fileName, es.name, es.createTime, es.comment, le.id 
+		 from 
+		 esignature es, legalperson_esignature le
+		<where>
+			<if test="lpId != null and lpId !='' and skey != null and skey != ''">
+			 and es.id = le.esId and le.lpId = #{lpId} and (es.title LIKE CONCAT('%', '${skey}', '%') or es.fileName LIKE CONCAT('%', '${skey}', '%')) limit ${start}, ${end}
+			</if>
+			
+		</where>
+	</select>
+	
+<!-- 	
+	<select id="searchState" resultType="com.zzxt.entity.ESignatureEntity">
+		 
+		 SELECT es.id, es.title, es.fileName, es.name, es.createTime, es.comment, le.id 
+		 from 
+		 esignature es, legalperson_esignature le
+		<where>
+			<if test="lpId != null and lpId !='' and state != null and state != ''">
+			 and es.id = le.ecId and le.lpId = #{lpId} and es.state = #{state}
+			</if>
+		</where>
+	</select> 
+	 -->
+
+ 	<select id="eSignatureAllList" resultType="com.zzxt.entity.ESignatureEntity">
+		 
+		 SELECT es.id, es.title, es.fileName, es.name, es.createTime, es.comment, le.id 
+		 from 
+		 esignature es, legalperson_esignature le
+		<where>
+			<if test="lpId !=null and lpId !=''">
+			 and es.id = le.esId and le.lpId = #{lpId}
+			</if>
+		</where>
+	</select>
+	
+	
+ 	<select id="eSignatureList" resultType="com.zzxt.entity.ESignatureEntity">
+		 
+		 SELECT es.id, es.title, es.fileName, es.name, es.createTime, es.comment, le.id 
+		 from 
+		 esignature es, legalperson_esignature le
+		<where>
+			<if test="lpId !=null and lpId !=''">
+			 and es.id = le.esId and le.lpId = #{lpId} limit ${start}, ${end}
+			</if>
+		</where>
+	</select>
+	
+
+	<select id="eSignature" resultType="com.zzxt.entity.ESignatureEntity">
+		 
+		 SELECT es.* from esignature es
+		<where>
+			<if test="esId !=null and esId !=''">
+			 and es.id = #{esId}
+			</if>
+		</where>
+	</select>
+
+	
+	<insert id="add" parameterType="com.zzxt.entity.ESignatureEntity" useGeneratedKeys="true" keyProperty="id">
+		
+		<selectKey keyProperty="id" resultType="int">  
+            select LAST_INSERT_ID()
+        </selectKey>
+        
+		insert into esignature(title, fileName, name, comment)
+		values (#{title},#{fileName}, #{name}, #{comment})
+	</insert>
+	
+	<delete id="del" parameterType="String">
+		DELETE FROM esignature
+		where id=#{id}		
+	</delete>
+
+	<update id="edit" parameterType="com.zzxt.entity.ESignatureEntity">
+		UPDATE esignature SET
+		title=#{title}, fileName=#{fileName}, name=#{name}, comment = #{comment}
+		where id=#{id}
+	</update>
+
+</mapper>

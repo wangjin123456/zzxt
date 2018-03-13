@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.UserDao">
+
+
+	<select id="userList" resultType="com.zzxt.bean.UserPowerBean">
+		 
+		 SELECT u.id, u.accountUuid, u.corpId, u.userName, u.name, u.mobile, u.email, u.sex, u.jobType, u.jobUuid,
+		  		lu.sub, lu.power
+		 from 
+		 user u, 
+		 legalperson_user lu
+		 
+		<where>
+			<if test="orgUuid !=null and orgUuid !=''">
+			 and u.id = lu.uid and lu.orgUuid = #{orgUuid}
+			</if>
+		</where>
+	</select>
+
+	<select id="user" resultType="com.zzxt.entity.UserEntity">
+		 
+		 SELECT u.* from user u
+		<where>
+			<if test="id !=null and id !=''">
+			 and u.id = #{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getUser" resultType="com.zzxt.entity.UserEntity">
+		 
+		 SELECT u.* from user u
+		<where>
+			<if test="accountUuid !=null and accountUuid !=''">
+			 and u.accountUuid = #{accountUuid}
+			</if>
+		</where>
+	</select>
+	
+	
+
+	
+	<insert id="add" parameterType="com.zzxt.entity.UserEntity" useGeneratedKeys="true" keyProperty="id">
+		
+		<selectKey keyProperty="id" resultType="int">  
+            select LAST_INSERT_ID()
+        </selectKey>
+        
+		insert into user(accountUuid, corpId, userName, name, mobile, email, sex, jobType, jobUuid)
+		values (#{accountUuid},#{corpId}, #{userName}, #{name} ,#{mobile}, #{email}, #{sex}, #{jobType}, #{jobUuid})
+	</insert>
+
+	<delete id="del" parameterType="String">
+		DELETE FROM user
+		where id=#{id}
+	</delete>
+
+
+</mapper>

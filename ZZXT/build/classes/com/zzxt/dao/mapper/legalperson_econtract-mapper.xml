@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.LegalPersonEContractDao">
+
+<insert id="add" parameterType="com.zzxt.entity.LegalPersonEContractEntity">
+		<selectKey keyProperty="id" resultType="int">  
+            select LAST_INSERT_ID()  
+        </selectKey>
+        
+		insert into legalperson_econtract(lpId, ecId, holder)
+		values (#{lpId},#{ecId}, #{holder})
+</insert>
+
+
+
+
+<select id="hasSigner" resultType="com.zzxt.entity.LegalPersonEContractEntity">
+		 
+SELECT * from legalperson_econtract le
+	<where>
+		<if test="ecId != null and ecId !='' and lpId != null and lpId !=''">
+			and (le.ecId = #{ecId} and le.lpId = #{lpId} and le.holder = 1) or (le.ecId = #{ecId} and le.lpId = #{lpId})
+		</if>
+	</where>
+</select>
+
+
+
+
+<select id="orgIdList" resultType="com.zzxt.entity.LegalPersonEContractEntity">
+		 
+SELECT * from legalperson_econtract le
+	<where>
+		<if test="ecId !=null and ecId !=''">
+			and le.ecId = #{ecId} and le.lpId != #{lpId}
+		</if>
+	</where>
+</select>
+
+
+<select id="getSignerList" resultType="com.zzxt.entity.LegalPersonEContractEntity">
+		 
+SELECT * from legalperson_econtract le
+	<where>
+		<if test="ecId !=null and ecId !=''">
+			and le.ecId = #{ecId} and le.holder = 0
+		</if>
+	</where>
+</select>
+
+
+
+<select id="getLegalPersonEContractEntity" resultType="com.zzxt.entity.LegalPersonEContractEntity">
+		 
+SELECT * from legalperson_econtract le
+	<where>
+		<if test="id !=null and id !=''">
+			and le.id = #{id}
+		</if>
+	</where>
+</select>
+
+
+<select id="getLegalPersonEContractEntityList" resultType="com.zzxt.entity.LegalPersonEContractEntity">
+		 
+SELECT * from legalperson_econtract le
+	<where>
+		<if test="ecId !=null and ecId !=''">
+			and le.ecId = #{ecId}
+		</if>
+	</where>
+</select>
+
+	
+	
+<update id="edit" parameterType="com.zzxt.entity.LegalPersonEContractEntity">
+	UPDATE legalperson_econtract SET
+	lpId=#{lpId}, ecId=#{ecId}, state=#{state}, holder=#{holder}
+	where id=#{id}
+</update>
+	
+<update id="editState" parameterType="com.zzxt.entity.LegalPersonEContractEntity">
+	UPDATE  legalperson_econtract SET state=#{state}
+	where ecId=#{ecId} and lpId=#{lpId}
+</update>
+
+<delete id="del" parameterType="String">
+	DELETE FROM legalperson_econtract
+	where id=#{id}
+</delete>
+	
+</mapper>

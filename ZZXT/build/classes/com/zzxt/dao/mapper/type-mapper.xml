@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.TypeDao">
+	<insert id="insertType" parameterType="String">
+		insert into tb_filetype
+		(type_Name) values (#{typeName});
+	</insert>
+
+	<resultMap type="com.zzxt.entity.TypeEntity" id="typeMap">
+
+		<id property="id" column="type_id" />
+		<result property="typeName" column="type_Name" />
+	</resultMap>
+	<select id="selectType" resultMap="typeMap">
+		select type_id ,type_Name from
+		tb_filetype
+	</select>
+
+	<update id="updateType" parameterType="com.zzxt.entity.TypeEntity">
+		UPDATE tb_filetype SET
+		type_Name=#{typeName} where type_id=#{id}
+	</update>
+	<delete id="deleteType" parameterType="Integer">
+		DELETE FROM tb_filetype
+		where type_id=#{id}
+	</delete>
+</mapper>

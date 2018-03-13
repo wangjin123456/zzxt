@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.LegalPersonUserDao">
+
+
+	<select id="legalPersonUserList" resultType="com.zzxt.entity.LegalPersonUserEntity">
+		 
+		 SELECT lu.*
+		 from 
+		 user u,
+		 legalperson_user lu
+		<where>
+			<if test="accountUuid != null and accountUuid != ''">
+			 and u.id = lu.uid and u.accountUuid = #{accountUuid}
+			</if>
+		</where>
+	</select>
+
+	<select id="legalPersonUser" resultType="com.zzxt.entity.LegalPersonUserEntity">
+		 
+		 SELECT lu.* from legalperson_user lu
+		<where>
+			<if test="ecId !=null and ecId !=''">
+			 and lu.id = #{ecId}
+			</if>
+		</where>
+	</select>
+
+	<select id="hasUser" resultType="com.zzxt.entity.LegalPersonUserEntity">
+		 
+		 SELECT lu.* from legalperson_user lu
+		<where>
+			<if test="orgUuid !=null and orgUuid !='' and uid != null and uid != ''">
+			 and lu.orgUuid = #{orgUuid} and lu.uid = #{uid}
+			</if>
+		</where>
+	</select>
+	
+
+	
+	<insert id="add" parameterType="com.zzxt.entity.LegalPersonUserEntity" useGeneratedKeys="true" keyProperty="id">
+		<selectKey keyProperty="id" resultType="int">  
+            select LAST_INSERT_ID()
+        </selectKey>
+        
+		insert into legalperson_user(orgUuid, uid, sub, power)
+		values (#{orgUuid},#{uid}, #{sub}, #{power})
+	</insert>
+	
+	
+
+	<delete id="delUser" parameterType="String">
+		DELETE FROM legalperson_user
+		where orgUuid = #{orgUuid} and uid=#{uid}
+	</delete>
+
+	<update id="edit" parameterType="com.zzxt.entity.LegalPersonUserEntity">
+		UPDATE legalperson_user SET
+		orgUuid=#{orgUuid}, uid=#{uid}
+		where id=#{id}
+	</update>
+
+
+	<update id="updatePower" parameterType="com.zzxt.entity.LegalPersonUserEntity">
+				
+		UPDATE legalperson_user SET power=#{power} where uid=#{uid} and orgUuid = #{orgUuid}
+	</update>
+
+	<update id="updateSub" parameterType="com.zzxt.entity.LegalPersonUserEntity">
+		UPDATE legalperson_user SET sub=#{sub}  where uid=#{uid} and orgUuid = #{orgUuid}
+	</update>
+
+
+</mapper>

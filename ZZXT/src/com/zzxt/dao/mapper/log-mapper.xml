@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.LogDao">
+    
+    <!-- 添加日志 -->
+	<insert id="addLog" parameterType="com.zzxt.entity.LogEntity" >
+		INSERT INTO 
+		tb_logger (userName,date,handle,state,comment) 
+		VALUES(#{userName},#{date},#{handle},#{state},#{comment})
+	</insert>
+	
+	<!-- 查询所有日志总记录 -->
+    <select id="findAllCount" resultType="Integer" >
+        select count(*) from tb_logger 
+        
+    </select>
+    
+    <!-- 根据用户名查询用户总记录 -->
+   	<select id="findNameCount" parameterType="String" resultType="int">
+		select COUNT(1) from tb_logger
+		<where>
+			<if test="userName !=null and userName !=''">
+				userName = #{userName}
+			</if>
+		</where>
+    </select>
+	
+	<!--分页查询我的日志信息 -->
+	<select id="findLogByName" resultType="com.zzxt.entity.LogEntity" parameterType="String">
+		select * FROM tb_logger
+		<where>
+			<if test="userName !=null || userName !=''">
+				userName=#{userName}
+			</if>
+		</where>
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	<!-- 删除日志 -->
+	<delete id="deleteLog" parameterType="Integer">
+		DELETE FROM tb_logger
+		where lid=#{lid}
+	</delete>
+	
+	<!-- 查询所有日志 -->
+	<select id="findAllByPage" resultType="com.zzxt.entity.LogEntity">
+		select *
+	    from tb_logger  
+	    order by lid 
+	    limit #{start}, #{pageSize}
+	
+	</select>
+	
+
+</mapper>

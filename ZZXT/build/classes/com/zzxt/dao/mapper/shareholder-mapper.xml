@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.ShareholderDao">
+	<resultMap type="com.zzxt.entity.ShareholderEntity" id="shareholder">
+		<id column="id" property="id" />
+		<result column="type" property="type" />
+		<result column="name" property="name" />
+		<result column="fund" property="fund" />
+		<result column="realFund" property="realFund" />
+
+	</resultMap>
+		
+	<select id="shareHolderList" parameterType="int" resultMap="shareholder">
+		
+		select s.* from shareholder s, license_shareholder ls
+		<where>
+			<if test="lid != null and lid != 0">
+				and ls.sid = s.id and ls.lid = #{lid}
+			</if>
+		</where>
+	</select>
+	
+	
+	<!-- update -->
+	<update id="edit" parameterType="com.zzxt.entity.ShareholderEntity">
+		UPDATE shareholder
+		set type = #{type,jdbcType=VARCHAR},
+		name = #{name,jdbcType=VARCHAR},
+		fund = #{fund,jdbcType=VARCHAR},
+		realFund = #{realFund,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	
+	
+	<insert id="add" parameterType="com.zzxt.entity.ShareholderEntity">
+		<selectKey keyProperty='id' resultType='int' order='AFTER'>
+			select LAST_INSERT_ID();
+		</selectKey>
+		insert into
+		shareholder(type, name, fund, realFund)
+		values(#{type},#{name},#{fund},#{realFund})
+	</insert>
+
+	<delete id="del" parameterType="int">
+		DELETE FROM shareholder
+		where id=#{id}
+	</delete>
+	
+	
+<!-- 	<insert id="insertSharInfoList" parameterType="java.util.List">
+		insert into
+		tb_shareholder(
+		shareholderType
+		,shareholderName
+		,projectedContribution
+		,actualContribution
+		,addTime
+		,updateTime)
+		values
+		<foreach collection="list" item="SharInfo" index="index"
+			separator=",">
+			(#{SharInfo.shareholderType},#{SharInfo.shareholderName},#{SharInfo.projectedContribution},#{SharInfo.actualContribution},
+			#{SharInfo.addTime},#{SharInfo.updateTime})
+		</foreach>
+	</insert>
+	
+	<delete id="deleteShar" parameterType="int">
+		DELETE FROM tb_shareholder
+		where id=#{id}
+	</delete>
+	<delete id="deleteSharById" parameterType="int">
+		DELETE FROM tb_shareholder WHERE id in
+		<foreach item="id" collection="list" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+	<select id="selectSharInfo" parameterType="int" resultMap="shareholder">
+		select * from tb_shareholder where id=#{id}
+	</select>
+	
+	
+	<select id="getShareholdersByLicenseId" parameterType="int"
+		resultMap="shareholder">
+		select s.* from tb_shareholder as s LEFT JOIN
+		tb_license_shareholder as ls on s.id=ls.shareholderId where
+		ls.licenseId=#{licenseId}
+	</select>
+ 
+ 	-->	
+	
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.LegalPersonDao">
+
+	<select id="legalPersonInfo" parameterType="java.lang.Integer"
+		resultType="com.zzxt.entity.LegalPersonEntity">
+		
+		SELECT lp.*
+		FROM legalperson lp, license_legalperson llp
+		<where>
+			<if test="id !=null and id !=0">
+				and llp.lpId = lp.id and llp.lid = #{id}
+			</if>
+		</where>
+	</select>	
+	
+	
+	<insert id="add" parameterType="com.zzxt.entity.LegalPersonEntity" useGeneratedKeys="true" keyProperty="id">
+		
+		<selectKey keyProperty="id" resultType="int">  
+            select LAST_INSERT_ID()
+        </selectKey>
+        
+		insert into legalperson(legalPerson, identity, identityType, phone)
+		values (#{legalPerson}, #{identity}, #{identityType}, #{phone})
+	</insert>
+	
+
+	<delete id="del" parameterType="String">
+		DELETE FROM legalperson
+		where id=#{id}
+	</delete>
+
+	<update id="edit" parameterType="com.zzxt.entity.LegalPersonEntity">
+		UPDATE legalperson SET
+		legalPerson = #{legalPerson}, identity = #{identity}, identityType = #{identityType}, phone = #{phone}
+		where id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zzxt.dao.LicenseShareholderDao">
+
+	
+<insert id="add" parameterType="com.zzxt.entity.LicenseShareholderEntity">
+		<selectKey keyProperty="id" resultType="int">  
+            select LAST_INSERT_ID()  
+        </selectKey>
+        
+		insert into license_shareholder(lid, sid)
+		values (#{lid},#{sid})
+</insert>
+
+<delete id="del" parameterType="Integer">
+	DELETE FROM license_shareholder
+	where id=#{id}
+</delete>
+	
+
+<delete id="delShareholer" parameterType="Integer">
+	DELETE FROM license_shareholder
+	where sid=#{sid}
+</delete>
+		
+
+	
+</mapper>
